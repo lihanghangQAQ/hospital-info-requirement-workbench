@@ -11,8 +11,8 @@
  * 切勿填写 service_role key。
  * ===================================================================== */
 window.SB_CONFIG = {
-  url: "https://REPLACE-WITH-YOUR-PROJECT.supabase.co",
-  anonKey: "REPLACE-WITH-YOUR-ANON-KEY",
+  url: "https://nphafpbqhgzxygapsffj.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5waGFmcGJxaGd6eHlnYXBzZmZqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkyNjI1MzAsImV4cCI6MjEwNDgzODUzMH0.7PS7jmMvRqgavak50vaH_4lOl4r9SMDjNbJnP4IBcdQ",
 
   // 单个请求超时（毫秒），超时会抛 status=408
   timeoutMs: 15000
