@@ -180,6 +180,31 @@ function res(status, body) {
     ok("登出后本地会话清除", e.store.getItem(SESSION_KEY) === null);
   }
 
+  console.log("\n== 8. Query 的 thenable 协议补全（回归：login -> retry(fn) 里 fn() 返回 Query）==");
+  {
+    // 回归用例：sb-sync.js 的 retry(fn) 内部写的是 fn().catch(...)，
+    // 而 fn() 返回的是 Query（thenable 而非 Promise），旧版缺 catch 会抛
+    // "fn(...).catch is not a function"，表现为登录时报错、进不去。
+    const e = makeEnv(() => res(200, "[]"), true);
+    let threw = null, got = null;
+    try { got = await e.SB.from("requirements").select("*").catch(function () { return "caught"; }); }
+    catch (x) { threw = x; }
+    ok("Query.catch 存在且不抛 TypeError", !threw, threw && threw.message);
+    ok("成功路径下 catch 透传原值", Array.isArray(got) && got.length === 0, JSON.stringify(got));
+
+    const errEnv = makeEnv(() => res(500, JSON.stringify({ message: "boom" })), true);
+    let caught = null;
+    try {
+      await errEnv.SB.from("requirements").select("*").catch(function (err) { caught = err; return "handled"; });
+    } catch (x) { caught = null; }
+    ok("失败路径下 catch 能捕获到错误", caught && caught.status === 500, caught && caught.message);
+
+    const finEnv = makeEnv(() => res(200, "[]"), true);
+    let fin = false;
+    const val = await finEnv.SB.from("requirements").select("*").finally(function () { fin = true; });
+    ok("Query.finally 执行且透传原值", fin === true && Array.isArray(val), "fin=" + fin);
+  }
+
   console.log("\n---------------------------------------");
   console.log(fail === 0
     ? "SB_CLIENT_SMOKE_PASS  (" + pass + " 项全部通过)"

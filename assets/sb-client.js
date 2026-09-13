@@ -228,6 +228,13 @@
   };
   /** 让 Query 成为 thenable，可直接 await / .then */
   Query.prototype.then = function (onOk, onErr) { return this.exec().then(onOk, onErr); };
+  /** 补全 thenable 协议
+   *  Query 只是 thenable，不是原生 Promise，本身没有 catch / finally。
+   *  调用方（sb-sync.js 的 retry）会直接写 fn().catch(...)，缺了就会抛
+   *  "fn(...).catch is not a function"，导致登录时 pullAll 直接失败、进不去。
+   *  这里显式补上，让 Query 具备完整的 then/catch/finally。 */
+  Query.prototype.catch = function (onErr) { return this.exec().catch(onErr); };
+  Query.prototype.finally = function (onFin) { return this.exec().finally(onFin); };
 
   /* ---------------- 认证 ---------------- */
   var auth = {
