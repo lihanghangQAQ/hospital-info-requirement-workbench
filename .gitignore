@@ -1,0 +1,10 @@
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# WorkBuddy local project memory (not for repo)
+.workbuddy/
+
+# Build scaffolding (intermediate iteration tooling, not part of shipped app)
+build/
