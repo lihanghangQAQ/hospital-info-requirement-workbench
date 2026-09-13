@@ -263,8 +263,16 @@
     var t = tableByKey(key);
     if (!t) return Promise.resolve();
 
+    // 未登录不发请求
+    var uid = (Cloud.session && Cloud.session.user) ? Cloud.session.user.id : null;
+    if (!uid) return Promise.resolve();
+
     var local = (global.loadArr(key, []) || []).filter(function (r) { return r && isUuid(r.id); });
     var rows = local.map(t.toRow);
+    // 6 张业务表都是 user_id uuid not null + RLS with check(auth.uid() = user_id)，
+    // 而各表的 toRow 都不产出 user_id，必须在这里统一补上；否则 upsert 会被拒：
+    // 42501 new row violates row-level security policy for table "xxx"
+    for (var n = 0; n < rows.length; n++) rows[n].user_id = uid;
     if (t.cap && rows.length > t.cap) rows = rows.slice(0, t.cap);
 
     var p = Promise.resolve();
